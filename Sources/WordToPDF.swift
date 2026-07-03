@@ -8,9 +8,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private let fileList = NSTextView()
     private let outputLabel = NSTextField(labelWithString: "")
-    private let statusLabel = NSTextField(labelWithString: "DOC veya DOCX dosyalarini secin.")
+    private let statusLabel = NSTextField(labelWithString: "Select DOC or DOCX files.")
     private let progress = NSProgressIndicator()
-    private let convertButton = NSButton(title: "PDF'e Cevir", target: nil, action: nil)
+    private let convertButton = NSButton(title: "Convert to PDF", target: nil, action: nil)
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         buildWindow()
@@ -45,11 +45,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             root.bottomAnchor.constraint(equalTo: window.contentView!.bottomAnchor)
         ])
 
-        let title = NSTextField(labelWithString: "Word dosyalarini PDF'e cevir")
+        let title = NSTextField(labelWithString: "Convert Word files to PDF")
         title.font = .boldSystemFont(ofSize: 24)
         root.addArrangedSubview(title)
 
-        let subtitle = NSTextField(labelWithString: "DOC/DOCX dosyalarini yerel olarak LibreOffice ile PDF'e aktarir.")
+        let subtitle = NSTextField(labelWithString: "Converts DOC/DOCX files to PDF locally using LibreOffice.")
         subtitle.textColor = .secondaryLabelColor
         root.addArrangedSubview(subtitle)
 
@@ -58,8 +58,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         buttonRow.spacing = 8
         root.addArrangedSubview(buttonRow)
 
-        let pickButton = NSButton(title: "Dosya Sec", target: self, action: #selector(pickFiles))
-        let clearButton = NSButton(title: "Listeyi Temizle", target: self, action: #selector(clearFiles))
+        let pickButton = NSButton(title: "Select Files", target: self, action: #selector(pickFiles))
+        let clearButton = NSButton(title: "Clear List", target: self, action: #selector(clearFiles))
         buttonRow.addArrangedSubview(pickButton)
         buttonRow.addArrangedSubview(clearButton)
         buttonRow.addArrangedSubview(NSView())
@@ -69,10 +69,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         outputRow.spacing = 8
         root.addArrangedSubview(outputRow)
 
-        outputRow.addArrangedSubview(NSTextField(labelWithString: "Cikti klasoru:"))
+        outputRow.addArrangedSubview(NSTextField(labelWithString: "Output folder:"))
         outputLabel.lineBreakMode = .byTruncatingMiddle
         outputRow.addArrangedSubview(outputLabel)
-        let outputButton = NSButton(title: "Degistir", target: self, action: #selector(pickOutputFolder))
+        let outputButton = NSButton(title: "Change", target: self, action: #selector(pickOutputFolder))
         outputRow.addArrangedSubview(outputButton)
 
         let scroll = NSScrollView()
@@ -106,7 +106,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func pickFiles() {
         let panel = NSOpenPanel()
-        panel.title = "Word dosyalarini sec"
+        panel.title = "Select Word files"
         panel.allowsMultipleSelection = true
         panel.canChooseDirectories = false
         panel.allowedContentTypes = [
@@ -129,7 +129,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func pickOutputFolder() {
         let panel = NSOpenPanel()
-        panel.title = "PDF cikti klasorunu sec"
+        panel.title = "Select PDF output folder"
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
@@ -142,25 +142,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func refreshFileList() {
         outputLabel.stringValue = outputFolder.path
         fileList.string = selectedFiles.isEmpty
-            ? "Henuz dosya secilmedi."
+            ? "No files selected yet."
             : selectedFiles.map { $0.path }.joined(separator: "\n")
-        statusLabel.stringValue = selectedFiles.isEmpty ? "DOC veya DOCX dosyalarini secin." : "\(selectedFiles.count) dosya hazir."
+        statusLabel.stringValue = selectedFiles.isEmpty ? "Select DOC or DOCX files." : "\(selectedFiles.count) files ready."
     }
 
     @objc private func startConversion() {
         guard !selectedFiles.isEmpty else {
-            showAlert(title: "Dosya yok", message: "Once bir DOC veya DOCX dosyasi secin.")
+            showAlert(title: "No files", message: "Please select a DOC or DOCX file first.")
             return
         }
         guard let soffice = findLibreOffice() else {
-            showAlert(title: "LibreOffice bulunamadi", message: "LibreOffice kurulu olmali: https://www.libreoffice.org/download/")
+            showAlert(title: "LibreOffice not found", message: "LibreOffice must be installed: https://www.libreoffice.org/download/")
             return
         }
 
         convertButton.isEnabled = false
         progress.maxValue = Double(selectedFiles.count)
         progress.doubleValue = 0
-        statusLabel.stringValue = "Donusturme basladi..."
+        statusLabel.stringValue = "Conversion started..."
 
         let files = selectedFiles
         let destination = outputFolder
@@ -170,7 +170,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
             for (index, file) in files.enumerated() {
                 DispatchQueue.main.async {
-                    self.statusLabel.stringValue = "Ceviriliyor: \(file.lastPathComponent)"
+                    self.statusLabel.stringValue = "Converting: \(file.lastPathComponent)"
                 }
 
                 do {
@@ -187,9 +187,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
             DispatchQueue.main.async {
                 self.convertButton.isEnabled = true
-                self.statusLabel.stringValue = "\(successCount) PDF olusturuldu."
+                self.statusLabel.stringValue = "\(successCount) PDFs created."
                 if !failures.isEmpty {
-                    self.showAlert(title: "Bazi dosyalar cevrilemedi", message: failures.joined(separator: "\n"))
+                    self.showAlert(title: "Some files failed to convert", message: failures.joined(separator: "\n"))
                 }
             }
         }
@@ -212,13 +212,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         guard process.terminationStatus == 0 else {
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            let detail = String(data: data, encoding: .utf8) ?? "Bilinmeyen LibreOffice hatasi."
+            let detail = String(data: data, encoding: .utf8) ?? "Unknown LibreOffice error."
             throw NSError(domain: "WordToPDF", code: Int(process.terminationStatus), userInfo: [NSLocalizedDescriptionKey: detail])
         }
 
         let produced = tempFolder.appendingPathComponent(file.deletingPathExtension().lastPathComponent + ".pdf")
         guard FileManager.default.fileExists(atPath: produced.path) else {
-            throw NSError(domain: "WordToPDF", code: 2, userInfo: [NSLocalizedDescriptionKey: "PDF dosyasi olusturulamadi."])
+            throw NSError(domain: "WordToPDF", code: 2, userInfo: [NSLocalizedDescriptionKey: "PDF file could not be created."])
         }
 
         let destination = uniqueOutputURL(folder: outputFolder, stem: file.deletingPathExtension().lastPathComponent)
@@ -250,7 +250,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         alert.messageText = title
         alert.informativeText = message
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "Tamam")
+        alert.addButton(withTitle: "OK")
         alert.runModal()
     }
 }
