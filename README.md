@@ -1,26 +1,27 @@
 # WordyPDF — Word (DOC/DOCX) to PDF (macOS)
 
-WordyPDF, macOS üzerinde DOC veya DOCX dosyalarını tek seferde PDF'e dönüştürmeyi kolaylaştıran basit bir masaüstü uygulamasıdır.
+WordyPDF is a simple macOS desktop application that converts Microsoft Word documents (.doc and .docx) to PDF with a single click.
 
-## Öne Çıkan Özellikler
+## Key Features
 
-- Bir veya birden fazla `.doc` / `.docx` dosyasını aynı anda seçip PDF'e dönüştürebilme
-- Çıktı PDF'ler için hedef klasör seçimi
-- LibreOffice'in yerel PDF aktarım motorunu kullanarak yerel, çevrimdışı dönüştürme
-- Basit, macOS'a özgü arayüz ile hızlı kullanım
+- Convert one or multiple `.doc` / `.docx` files at once
+- Choose an output folder for generated PDFs
+- Uses the local LibreOffice export engine for offline conversion
+- Native macOS UI for a quick and familiar workflow
 
-## Gereksinimler
+## Requirements
 
-- macOS (uygun sürüm: macOS 10.13 veya üzeri önerilir)
-- LibreOffice (uygulama, LibreOffice'in PDF aktarma motorunu kullanır)
-- Dönüştürülen dosyada kullanılan fontların Mac'te kurulu olması daha doğru görünümler sağlar
+- macOS (recommended: 10.13 or later)
+- LibreOffice installed (WordyPDF uses LibreOffice's PDF export engine)
+- Fonts used in the source documents should be installed on the Mac for best rendering results
 
-> Not: İlk çalıştırmada macOS uygulama için dosya erişimi izni (ör. Masaüstü / Belgeler / Seçilen klasörler) isteyebilir; bu normaldir.
+> Note: On first run, macOS may ask for file access permissions for the app (e.g., Desktop, Documents, selected folders). This is expected.
 
-## Kurulum
+## Installation
 
-1. Hazır uygulama (Word to PDF.app) kullanıyorsanız uygulamayı çift tıklayarak açın.
-2. Kaynak koddan derlemek isterseniz depoyu klonlayın ve aşağıdaki adımları izleyin:
+- If you have a prebuilt app bundle, open `Word to PDF.app` by double-clicking it.
+
+- To build from source:
 
 ```sh
 git clone https://github.com/fikoture/WordyPDF.git
@@ -28,48 +29,46 @@ cd WordyPDF
 ./build.sh
 ```
 
-Derleme tamamlandığında `Word to PDF.app` paketini `dist/` veya build çıktısında belirtilen klasörde bulacaksınız.
+After building, the `Word to PDF.app` bundle will be available in the build output directory (for example `dist/`).
 
-## Kullanım
+## Usage
 
-1. Uygulamayı açın (`Word to PDF.app`).
-2. "Dosya Seç" butonuyla bir veya daha fazla `.doc` / `.docx` dosyası seçin.
-3. PDF'lerin kaydedileceği hedef klasörü seçin.
-4. "PDF'e Çevir" butonuna basın.
+1. Launch the app (`Word to PDF.app`).
+2. Click "Select Files" and pick one or more `.doc` / `.docx` files.
+3. Choose the folder where you want the PDFs saved.
+4. Click "Convert to PDF".
 
-Uygulama dönüştürme işlemi boyunca ilerleme bilgisi gösterir ve tamamlandığında işlem sonucunu bildirir.
+The app shows progress during conversion and reports when the operation is complete.
 
-## İçerideki Dönüştürme Motoru
+## Conversion Engine
 
-- WordyPDF, dönüştürme işlemleri için sistemde yüklü olan LibreOffice'i kullanır (komut satırı arayüzü/UNO).
-- Bu nedenle LibreOffice'in doğru şekilde kurulu ve PATH veya uygulama yolunun doğru ayarlanmış olması önemlidir.
+WordyPDF relies on the locally installed LibreOffice (soffice) to perform conversions via its export/PDF engine (UNO or command-line interface). Make sure LibreOffice is installed and accessible (e.g., `soffice --version` should run in Terminal).
 
-## Hata Ayıklama ve Sık Karşılaşılan Sorunlar
+## Troubleshooting
 
-- Bozuk veya desteklenmeyen Word formatı: Dosya LibreOffice ile açılamıyorsa düzgün dönüştürülmez.
-- Eksik fontlar: PDF'de yazı tipi farklı gözükebilir; eksik fontları Mac'e kurmak genellikle sorunu çözer.
-- İzin hataları: macOS'ta uygulama klasörlere erişim izni vermeniz gerekebilir. Sistem Tercihleri → Güvenlik ve Gizlilik → Gizlilik bölümünden erişimleri kontrol edin.
-- LibreOffice bulunamıyorsa: Terminal'de `soffice --version` çalıştırarak LibreOffice'in erişilebilir olduğunu doğrulayın.
+- Corrupted or unsupported Word files: If LibreOffice cannot open the document, conversion will fail.
+- Missing fonts: PDFs may appear with substituted fonts if required fonts are not installed on macOS. Install missing fonts to improve fidelity.
+- Permission issues: If the app can't access files or folders, grant access in System Settings → Privacy & Security → Files and Folders.
+- LibreOffice not found: Verify LibreOffice is installed and available in PATH, or that the app is configured with the correct LibreOffice path.
 
-## Geliştirme
+## Development
 
-- Kaynak kodu düzenlerseniz tekrar derlemek için:
+If you modify source code, rebuild with:
 
 ```sh
 ./build.sh
 ```
 
-- Kod değişiklikleri, uygulama paketinin yeniden oluşturulmasını gerektirir.
+Code changes require rebuilding the app bundle to produce a new `Word to PDF.app`.
 
-## Katkıda Bulunma
+## Contributing
 
-- Hatalar ve istekler için Issues açabilirsiniz.
-- Basit düzeltmeler için fork -> branch -> PR akışı kullanılabilir.
+Issues and feature requests are welcome — please open an Issue. For code changes, fork the repo, create a branch, and submit a Pull Request.
 
-## Lisans
+## License
 
-Bu projenin lisansı: (Lütfen uygun lisans bilgisini buraya ekleyin, örn. MIT)
+Please add the appropriate license (for example, MIT) to the repository.
 
 ---
 
-Teşekkürler — eklemek istediğiniz özellikler, desteklenen Word öğeleri veya ekran görüntüleri varsa README'i ona göre genişletebilirim.
+If you'd like, I can also create a short CHANGELOG entry, add usage screenshots, or open a PR instead of committing directly. Tell me what you prefer.
